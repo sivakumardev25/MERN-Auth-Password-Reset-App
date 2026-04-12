@@ -1,0 +1,14 @@
+npx create-react-app reset-frontend
+npm install axios bootstrap react-router-dom
+
+instructions
+
+//For Backend
+cd backend
+npm install
+node server.js
+
+//For Frontend
+cd frontend / reset - frontend
+npm start
+npm run build
