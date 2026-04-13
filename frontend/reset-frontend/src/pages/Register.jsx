@@ -6,25 +6,25 @@ function Register() {
   const [form, setForm] = useState({ email: "", password: "" });
 
   // Handle form submission
-  //   const handleSubmit = async (e) => {
-  //     e.preventDefault();
-  //     await API.post("/register", form);
-  //     alert("Registered successfully");
-  //     };
-
-  const handleSubmit = async () => {
-    try {
-      const res = await API.post("/register", {
-        data: form,
-        // email,
-        // password,
-      });
-
-      console.log(res.data);
-    } catch (err) {
-      console.error(err);
-    }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    await API.post("/register", form);
+    alert("Registered successfully");
   };
+
+  // const handleSubmit = async () => {
+  //   try {
+  //     const res = await API.post("/register", {
+  //       data: form,
+  //       // email,
+  //       // password,
+  //     });
+
+  //     console.log(res.data);
+  //   } catch (err) {
+  //     console.error(err);
+  //   }
+  // };
 
   return (
     <div className="card p-4">
