@@ -9,7 +9,6 @@ function ForgotPassword() {
     await API.post("/forgot-password", { email });
     alert("Reset link sent to email");
   };
-  console.log("CLIENT_URL:", process.env.CLIENT_URL);
 
   return (
     <div className="card p-4">
