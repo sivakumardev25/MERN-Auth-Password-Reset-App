@@ -10,10 +10,17 @@ function ResetPassword() {
   //   Handle form submission to reset password
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await API.post(`/reset-password/${token}`, {
-      newPassword: password,
-    });
-    alert("Password reset successful");
+    try {
+      const res = await API.post(`/reset-password/${token}`, {
+        newPassword: password,
+      });
+      alert("Password reset successful");
+      console.log(res.data);
+    } catch (err) {
+      console.log(err.response?.data);
+
+      alert(err.response?.data?.message || "Failed to reset password");
+    }
   };
 
   return (
