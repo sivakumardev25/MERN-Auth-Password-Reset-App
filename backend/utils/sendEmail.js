@@ -1,23 +1,30 @@
+// export the nodemailer module to send emails
+
 const nodeMailer = require("nodemailer");
+const { getMaxListeners } = require("../models/User");
 
 const sendEmail = async (email, link) => {
-  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-    throw new Error("Email credentials are not configured");
-  }
+//   if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+//     throw new Error("Email credentials are not configured");
+//   }
 
-  const transporter = nodeMailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 465,
-    secure: true,
+  try{
+    const transporter = nodeMailer.createTransport({
+    service: "gmail",
+    // host: "smtp.gmail.com",
+    // port: 465,
+    // secure: true,
     auth: {
       user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS.replace(/\s+/g, ""),
+      pass: process.env.EMAIL_PASS,
     },
   });
 
-  try {
-    await transporter.verify();
-    const info = await transporter.sendMail({
+    // try {
+    // nodemailer format
+    await transporter.sendMail({
+    // await transporter.verify();
+    // const info = await transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: email,
       subject: "Password Reset Link",
@@ -26,11 +33,11 @@ const sendEmail = async (email, link) => {
       <a href="${link}">${link}</a>`,
     });
 
-    console.log("Email sent successfully:", info.messageId);
-    return info;
+    // console.log("Email sent successfully:", info.messageId);
+    // return info;
   } catch (error) {
     console.error("Failed to send email:", error);
-    throw new Error(error.message || "Failed to send email");
+    // throw new Error(error.message || "Failed to send email");
   }
 };
 

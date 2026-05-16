@@ -7,7 +7,7 @@ const jwt = require("jsonwebtoken");
 
 // Forgot password controller
 exports.forgotPassword = async (req, res) => {
-  try {
+  // try {
     const { email } = req.body;
 
     if (!email)
@@ -40,15 +40,15 @@ exports.forgotPassword = async (req, res) => {
       message: "Password reset link sent to your email",
      });
     
-  } catch (error) {
-    console.error("Forgot password error:", error.message);
+  // } catch (error) {
+  //   console.error("Forgot password error:", error.message);
     
-    res.status(500).json({
-      success: false,
-      message: "Failed to send reset email",
-      response: error.message,  
-    });
-  }
+  //   res.status(500).json({
+  //     success: false,
+  //     message: "Failed to send reset email",
+  //     response: error.message,  
+  //   });
+  // }
 };
 
 //Verify the token and reset the password controller
