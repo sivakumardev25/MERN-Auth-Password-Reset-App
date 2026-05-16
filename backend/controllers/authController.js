@@ -35,11 +35,18 @@ exports.forgotPassword = async (req, res) => {
 
     //send the email to the user with the reset link
     await sendEmail(email, resetLink);
-  } catch (error) {
-    console.error("Forgot password error:", error.message);
-    res.status(200).json({
+     res.status(200).json({
       success: true,
       message: "Password reset link sent to your email",
+     });
+    
+  } catch (error) {
+    console.error("Forgot password error:", error.message);
+    
+    res.status(500).json({
+      success: false,
+      message: "Failed to send reset email",
+      response: error.message,  
     });
   }
 };
