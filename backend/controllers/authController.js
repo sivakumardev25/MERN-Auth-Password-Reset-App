@@ -7,34 +7,41 @@ const jwt = require("jsonwebtoken");
 
 // Forgot password controller
 exports.forgotPassword = async (req, res) => {
-  const { email } = req.body;
+  try {
+    const { email } = req.body;
 
-  if (!email)
-    return res.status(400).json({ success: false, message: "Email required" });
+    if (!email)
+      return res
+        .status(400)
+        .json({ success: false, message: "Email required" });
 
-  // Check if the user exists in the database
-  const user = await User.findOne({ email });
-  if (!user)
-    return res.status(404).json({ success: false, message: "User not found" });
+    // Check if the user exists in the database
+    const user = await User.findOne({ email });
+    if (!user)
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
 
-  // Generate a random token for password reset
-  const token = crypto.randomBytes(32).toString("hex");
+    // Generate a random token for password reset
+    const token = crypto.randomBytes(32).toString("hex");
 
-  // Set the reset token and its expiration time on the user document
-  user.resetToken = token; //Saves token inside the user document
-  user.resetTokenExpire = Date.now() + 30 * 60 * 1000; // Token expires in 30 minutes
+    // Set the reset token and its expiration time on the user document
+    user.resetToken = token; //Saves token inside the user document
+    user.resetTokenExpire = Date.now() + 30 * 60 * 1000; // Token expires in 30 minutes
 
-  await user.save(); // Save the updated user document to the database
+    await user.save(); // Save the updated user document to the database
 
-  const resetLink = `${process.env.CLIENT_URL}/reset-password/${token}`; // URL for the password reset page
+    const resetLink = `${process.env.CLIENT_URL}/reset-password/${token}`; // URL for the password reset page
 
-  //send the email to the user with the reset link
-  await sendEmail(email, resetLink);
-
-  res.status(200).json({
-    success: true,
-    message: "Password reset link sent to your email",
-  });
+    //send the email to the user with the reset link
+    await sendEmail(email, resetLink);
+  } catch (error) {
+    console.error("Forgot password error:", error.message);
+    res.status(200).json({
+      success: true,
+      message: "Password reset link sent to your email",
+    });
+  }
 };
 
 //Verify the token and reset the password controller
