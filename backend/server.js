@@ -13,7 +13,7 @@ app.use(
   }),
 );
 
-const connectDB = require("./config/db.js");
+const connectDB = require("./config/db.js"); 
 
 // Define routes for authentication-related operations
 const userRoutes = require("./routes/authRoutes");
