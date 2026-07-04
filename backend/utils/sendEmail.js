@@ -1,43 +1,66 @@
-// export the nodemailer module to send emails
+// Email sending helper with provider fallback (SendGrid Web API preferred)
 
 const nodeMailer = require("nodemailer");
-const { getMaxListeners } = require("../models/User");
 
 const sendEmail = async (email, link) => {
-//   if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-//     throw new Error("Email credentials are not configured");
-//   }
+  try {
+    // Prefer SendGrid Web API when API key is provided
+    if (process.env.SENDGRID_API_KEY) {
+      const sgMail = require("@sendgrid/mail");
+      sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-  try{
-    const transporter = nodeMailer.createTransport({
-    service: "gmail",
-    // host: "smtp.gmail.com",
-    // port: 465,
-    // secure: true,
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
-    },
-  });
+      const msg = {
+        to: email,
+        from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
+        subject: "Password Reset Link",
+        html: `<p>You requested a password reset.</p>
+          <p>Click the link below to reset your password:</p>
+          <a href="${link}">${link}</a>`,
+      };
 
-    // try {
-    // nodemailer format
-    await transporter.sendMail({
-    // await transporter.verify();
-    // const info = await transporter.sendMail({
-      from: process.env.EMAIL_USER,
+      const res = await sgMail.send(msg);
+      console.log("SendGrid send response:", Array.isArray(res) ? res[0].statusCode : res.statusCode);
+      return res;
+    }
+
+    // Otherwise fall back to SMTP providers (SendGrid SMTP or Gmail)
+    let transporter;
+    if (process.env.SENDGRID_SMTP_USER && process.env.SENDGRID_SMTP_PASS) {
+      transporter = nodeMailer.createTransport({
+        host: "smtp.sendgrid.net",
+        port: 587,
+        secure: false,
+        auth: {
+          user: process.env.SENDGRID_SMTP_USER,
+          pass: process.env.SENDGRID_SMTP_PASS,
+        },
+      });
+    } else if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+      transporter = nodeMailer.createTransport({
+        service: "gmail",
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASS,
+        },
+      });
+    } else {
+      throw new Error("No email provider configured. Set SENDGRID_API_KEY or SMTP/GMAIL creds.");
+    }
+
+    const info = await transporter.sendMail({
+      from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
       to: email,
       subject: "Password Reset Link",
       html: `<p>You requested a password reset.</p>
-      <p>Click the link below to reset your password:</p>
-      <a href="${link}">${link}</a>`,
+        <p>Click the link below to reset your password:</p>
+        <a href="${link}">${link}</a>`,
     });
 
-    // console.log("Email sent successfully:", info.messageId);
-    // return info;
+    console.log("SMTP send response:", info && info.messageId ? info.messageId : info);
+    return info;
   } catch (error) {
-    console.error("Failed to send email:", error);
-    // throw new Error(error.message || "Failed to send email");
+    console.error("Failed to send email:", error && error.message ? error.message : error);
+    throw error;
   }
 };
 
